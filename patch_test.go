@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/SKevo18/gopatch"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
