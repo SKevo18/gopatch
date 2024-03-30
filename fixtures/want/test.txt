@@ -1,0 +1,19 @@
+[ini]
+key1 = value1
+key2 = value2
+
+[json]
+{
+    "abc": [
+        "def",
+        "ghi"
+    ]
+    "ape": "monkey",
+    "monkey": "ape"
+}
+
+[xml]
+<root>
+    <newkey>newvalue</newkey>
+    <key8>value8</key8>
+</root>

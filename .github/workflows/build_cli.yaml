@@ -1,0 +1,65 @@
+name: Build CLI
+
+on:
+  release:
+    types: [created]
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ["1.22.1"]
+        os: [linux, windows, darwin]
+        arch: [amd64, arm64]
+        include:
+          - os: windows
+            extension: .exe
+          - os: linux
+            extension: ""
+          - os: darwin
+            extension: ""
+
+    name: Build for ${{ matrix.os }}/${{ matrix.arch }}
+    steps:
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Run Tests
+        run: go test ./...
+
+      - name: Build CLI
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          cd cli
+          go build -o ../gopatch-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}
+          cd ..
+
+      - name: Compress binary
+        run: |
+          FILES="gopatch-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}"
+          [ -f LICENSE.md ] && FILES="$FILES LICENSE.md"
+          [ -f README.md ] && FILES="$FILES README.md"
+          tar -czvf gopatch-${{ matrix.os }}-${{ matrix.arch }}.tar.gz $FILES
+
+      - name: Upload binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: gopatch-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+          asset_name: gopatch-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+          asset_content_type: application/gzip

@@ -1,0 +1,52 @@
+# overwrites lines 8-12 in test.txt with the provided content
+# why it goes until line 12? 8 + 4 (amount of lines after header below)
+@ + test.txt 8 0 true
+{
+    "ape": "monkey",
+    "monkey": "ape"
+}
+
+# removes lines 5-6 (inclusive) in test.txt
+@ - test.txt 5 6 true
+
+# appends the provided content in place of line 9
+# existing lines will be moved below the new content (so the new content starts at line 9)
+@ + test.txt 9 0 false
+    "abc": [
+        "def",
+        "ghi"
+    ]
+
+# overwrites line 15 with new key
+@ + test.txt 15 0 true
+    <newkey>newvalue</newkey>
+
+# removes lines 16-19 (inclusive) in fruits.json
+@ - subdirectory/fruits.json 16 19 true
+
+# overwrites line 15
+# (removes trailing comma, so the json is
+# valid after we insert new data, see below)
+@ + subdirectory/fruits.json 15 0 true
+            }
+
+# inserts new data at line 8 in fruits.json
+@ + subdirectory/fruits.json 8 0 false
+            {
+                "name": "cherry",
+                "color": "darkred"
+            },
+
+# removes the first line in subdirectory/monkey.txt
+@ - subdirectory/monkey.txt 1 0 true
+
+# replaces lines 5-7 (inclusive) with empty lines in subdirectory/monkey.txt
+@ - subdirectory/monkey.txt 5 7 false
+
+# overwrites content starting from line 11 in subdirectory/monkey.txt
+@ + subdirectory/monkey.txt 11 0 true
+\@ fake header
+\
+\# i should be there
+\
+# i should not be in the patched file, as I am a comment

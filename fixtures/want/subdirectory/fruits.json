@@ -1,0 +1,22 @@
+{
+    "data": {
+        "fruits": [
+            {
+                "name": "apple",
+                "color": "red"
+            },
+            {
+                "name": "cherry",
+                "color": "darkred"
+            },
+            {
+                "name": "banana",
+                "color": "yellow"
+            },
+            {
+                "name": "grape",
+                "color": "purple"
+            }
+        ]
+    }
+}
