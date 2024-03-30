@@ -89,7 +89,7 @@ func main() {
 
 	patchLines, err := gopatch.ReadPatchFile(patchFile) // or `gopatch.ReadPatchFiles([]string{patchFile, ...})` to join multiple patch files together
 	if err != nil {
-		fmt.Printf("Failed to read patch file %s: %v", patchFile, err)
+		fmt.Printf("Failed to read patch file %s: %v\n", patchFile, err)
 		os.Exit(1)
 	}
 	if err := gopatch.PatchDir(originalDir, outputDir, patchLines); err != nil {

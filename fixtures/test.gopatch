@@ -44,9 +44,7 @@
 @ - subdirectory/monkey.txt 5 7 false
 
 # overwrites content starting from line 11 in subdirectory/monkey.txt
-@ + subdirectory/monkey.txt 11 0 true
+@ + subdirectory/monkey.txt 11 0 false
 \@ fake header
-\
 \# i should be there
-\
 # i should not be in the patched file, as I am a comment

@@ -35,21 +35,21 @@ func (fl *FileLines) WriteFile(path string) error {
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
-	for i, line := range *fl {
-		// unpack lines
-		lines := strings.Split(line, "\n") // TODO: do we need to strip \r?
+	flLen := len(*fl)
+	for i, packedLines := range *fl {
+		unpackedLines := strings.Split(packedLines, newLineChar)
+		unpackedLen := len(unpackedLines)
 
-		for _, l := range lines {
-			// skip deleted lines
-			if l == deletedFlag {
+		for j, line := range unpackedLines {
+			if line == deletedFlag {
 				continue
 			}
 
-			toWrite := l
-			if i < len(*fl)-1 {
-				toWrite += newLineChar
+			// append new line, if it's not the last line, or last line of the last packed line
+			if i != flLen-1 || (unpackedLen > 1 && j != unpackedLen-1) {
+				line += newLineChar
 			}
-			if _, err := writer.WriteString(toWrite); err != nil {
+			if _, err := writer.WriteString(line); err != nil {
 				return err
 			}
 		}
