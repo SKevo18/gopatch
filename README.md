@@ -68,23 +68,38 @@ You can see the [fixtures](/fixtures/) directory for more examples and sample ou
 
 You can also use the `gopatch` package directly in your Go code. Here is an example:
 
+<!-- markdownlint-disable MD010 -->
 ```go
 package main
 
 import (
-    "fmt"
-    "log"
+	"fmt"
+	"os"
 
-    "github.com/SKevo18/gopatch"
+	"github.com/SKevo18/gopatch"
 )
 
 func main() {
-    if err := gopatch.PatchDir("original", "new", "patchfile.gopatch"); err != nil {
-        mt.Println(err)
-        os.Exit(1)
-    }
+	if len(os.Args) != 4 {
+		os.Exit(1)
+	}
+	originalDir := os.Args[1]
+	outputDir := os.Args[2]
+	patchFile := os.Args[3]
+
+	patchLines, err := gopatch.ReadPatchFile(patchFile) // or `gopatch.ReadPatchFiles([]string{patchFile, ...})` to join multiple patch files together
+	if err != nil {
+		fmt.Printf("Failed to read patch file %s: %v", patchFile, err)
+		os.Exit(1)
+	}
+	if err := gopatch.PatchDir(originalDir, outputDir, patchLines); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
+
 ```
+<!-- markdownlint-enable MD010 -->
 
 ## License
 

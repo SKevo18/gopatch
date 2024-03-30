@@ -12,8 +12,8 @@ import (
 const deletedFlag = "@[DeLeTeD]@" // what are the odds, right?
 
 // Reads a patch file and returns a slice of `PatchLine` structs.
-func readPatchFile(filePath string) ([]PatchLine, error) {
-	file, err := os.Open(filePath)
+func ReadPatchFile(patchFilePath string) ([]PatchLine, error) {
+	file, err := os.Open(patchFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -55,13 +55,37 @@ func readPatchFile(filePath string) ([]PatchLine, error) {
 	return patchLines, nil
 }
 
-// Patches a directory with a patch file.
-func PatchDir(dirPath string, outputDir string, patchFilePath string) error {
-	patchLines, err := readPatchFile(patchFilePath)
+// Joins multiple patch files together.
+func ReadPatchFiles(patchFilePaths []string) ([]PatchLine, error) {
+	var patchLines []PatchLine
+	for _, patchFilePath := range patchFilePaths {
+		lines, err := ReadPatchFile(patchFilePath)
+		if err != nil {
+			return nil, err
+		}
+		patchLines = append(patchLines, lines...)
+	}
+
+	return patchLines, nil
+}
+
+// Patches a file with a patch file.
+// Note: only the patches matching header filename are applied.
+func PatchFile(filePath string, outputPath string, patchLines []PatchLine) error {
+	patchedLines, err := getPatchedLines(filePath, patchLines)
 	if err != nil {
 		return err
 	}
 
+	if err := patchedLines.WriteFile(outputPath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Patches a directory with a patch file.
+func PatchDir(dirPath string, outputDir string, patchLines []PatchLine) error {
 	if err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -70,31 +94,27 @@ func PatchDir(dirPath string, outputDir string, patchFilePath string) error {
 			return nil
 		}
 
-		fileLines := FileLines{}
-		if err := fileLines.LoadFile(path); err != nil {
+		// determine file paths
+		relPath, _ := filepath.Rel(dirPath, path)
+		outputPath := filepath.Join(outputDir, relPath)
+		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
 			return err
 		}
 
-		// accumulate patches
-		relPath, err := filepath.Rel(dirPath, path)
-		if err != nil {
+		// patch
+		fileLines := FileLines{}
+		if err := fileLines.LoadFile(path); err != nil {
 			return err
 		}
 		for _, patchLine := range patchLines {
 			if patchLine.FilePath != relPath {
 				continue
 			}
+
 			if err := fileLines.applyPatch(patchLine); err != nil {
 				return err
 			}
-
 		}
-
-		outputPath := filepath.Join(outputDir, relPath)
-		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
-			return err
-		}
-
 		if err := fileLines.WriteFile(outputPath); err != nil {
 			return err
 		}
@@ -105,6 +125,26 @@ func PatchDir(dirPath string, outputDir string, patchFilePath string) error {
 	}
 
 	return nil
+}
+
+// Returns patched lines of a file.
+func getPatchedLines(filePath string, patchLines []PatchLine) (FileLines, error) {
+	fileLines := FileLines{}
+	if err := fileLines.LoadFile(filePath); err != nil {
+		return nil, err
+	}
+
+	for _, patchLine := range patchLines {
+		if !strings.HasSuffix(patchLine.FilePath, filePath) {
+			continue
+		}
+
+		if err := fileLines.applyPatch(patchLine); err != nil {
+			return nil, err
+		}
+	}
+
+	return fileLines, nil
 }
 
 // Applies a patch to a slice of lines.

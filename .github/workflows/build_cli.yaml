@@ -43,7 +43,7 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: |
-          cd cli
+          cd gopatch_cli
           go build -o ../gopatch-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.extension }}
           cd ..
 
