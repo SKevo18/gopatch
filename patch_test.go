@@ -52,31 +52,31 @@ func TestWritePatchFile(t *testing.T) {
 }
 
 func compareDirs(t *testing.T, have string, want string) error {
-	return filepath.Walk(have, func(path string, info os.FileInfo, err error) error {
+	return filepath.Walk(want, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel(have, path)
+		relPath, err := filepath.Rel(want, path)
 		if err != nil {
 			return err
 		}
 
-		wantPath := filepath.Join(want, relPath)
-		wantInfo, err := os.Stat(wantPath)
+		havePath := filepath.Join(have, relPath)
+		haveInfo, err := os.Stat(havePath)
 		if err != nil {
-			return err
+			return fmt.Errorf("wanted `%s` is missing", havePath)
 		}
 
 		if info.IsDir() {
-			if wantInfo.IsDir() {
+			if haveInfo.IsDir() {
 				return nil
 			}
-			return fmt.Errorf("want %s is not a directory", wantPath)
+			return fmt.Errorf("want %s is not a directory", havePath)
 		}
 
-		if !wantInfo.IsDir() {
-			if err := compareFiles(t, path, wantPath); err != nil {
+		if !haveInfo.IsDir() {
+			if err := compareFiles(t, path, havePath); err != nil {
 				return err
 			}
 		}

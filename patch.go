@@ -4,6 +4,7 @@ package gopatch
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -113,19 +114,35 @@ func PatchDir(dirPath string, outputDir string, patchLines []PatchLine) error {
 			return nil
 		}
 
-		// determine file paths
+		// determine paths
 		relPath, _ := filepath.Rel(dirPath, path)
 		outputPath := filepath.Join(outputDir, relPath)
 		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
 			return err
 		}
 
-		// patch
+		// find relevant patch lines
+		relevantPatchLines := []PatchLine{}
+		for _, patchLine := range patchLines {
+			if patchLine.FilePath != relPath {
+				continue
+			}
+			relevantPatchLines = append(relevantPatchLines, patchLine)
+		}
+		if len(relevantPatchLines) == 0 {
+			// no patches for this file
+			if err := copyFile(path, outputPath); err != nil {
+				return err
+			}
+			return nil
+		}
+
+		// get original lines and patch them
 		fileLines := FileLines{}
 		if err := fileLines.LoadFile(path); err != nil {
 			return err
 		}
-		for _, patchLine := range patchLines {
+		for _, patchLine := range relevantPatchLines {
 			if patchLine.FilePath != relPath {
 				continue
 			}
@@ -140,6 +157,27 @@ func PatchDir(dirPath string, outputDir string, patchLines []PatchLine) error {
 
 		return nil
 	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Copies a file from source to destination.
+func copyFile(src string, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	if _, err := io.Copy(dstFile, srcFile); err != nil {
 		return err
 	}
 
