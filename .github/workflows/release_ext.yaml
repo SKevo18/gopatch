@@ -1,0 +1,49 @@
+name: Release VS Code Extension
+
+on:
+  push:
+    paths:
+      - 'vscode_ext/**'
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '21'
+      
+      - name: Install VSCE
+        run: npm install -g vsce
+
+      - name: Install Dependencies
+        run: cd vscode_ext && npm install
+
+      - name: Package Extension
+        run: cd vscode_ext && vsce package
+        
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload VSIX as Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./vscode_ext/*.vsix
+          asset_name: gopatch-syntax.vsix
+          asset_content_type: application/octet-stream

@@ -1,0 +1,50 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Gopatch",
+	"patterns": [
+		{
+			"begin": "^(@)\\s+(\\+|\\-)\\s+(.+)\\s+(\\d+)\\s+(\\d+)\\s(true|false)",
+			"beginCaptures": {
+				"1": {
+					"name": "entity.name.function.header.gopatch"
+				},
+				"2": {
+					"name": "keyword.control.action.gopatch"
+				},
+				"3": {
+					"name": "string.filename.gopatch"
+				},
+				"4": {
+					"name": "constant.numeric.line-number.gopatch"
+				},
+				"5": {
+					"name": "constant.numeric.line-number.gopatch"
+				},
+				"6": {
+					"name": "constant.language.boolean.overwrite.gopatch"
+				}
+			},
+			"end": "$",
+			"contentName": "header.gopatch"
+		},
+		{
+			"begin": "^(#.+)",
+			"beginCaptures": {
+				"1": {
+					"name": "comment.line.comment.gopatch"
+				}
+			},
+			"end": "$",
+			"contentName": "comment.line.gopatch"
+		},
+		{
+			"patterns": [
+				{
+					"match": "^\\\\.",
+					"name": "constant.character.escape.gopatch"
+				}
+			]
+		}
+	],
+	"scopeName": "source.gopatch"
+}

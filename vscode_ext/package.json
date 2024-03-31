@@ -1,0 +1,37 @@
+{
+  "name": "gopatch-syntax",
+  "displayName": "Gopatch Syntax",
+  "description": "Syntax highlighting for gopatch files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.87.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "gopatch",
+        "aliases": [
+          "Gopatch",
+          "gopatch"
+        ],
+        "extensions": [
+          ".gopatch"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "gopatch",
+        "scopeName": "source.gopatch",
+        "path": "./syntaxes/gopatch.tmLanguage.json"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.2"
+  }
+}

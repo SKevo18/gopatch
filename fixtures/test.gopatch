@@ -1,5 +1,5 @@
-# overwrites lines 8-12 in test.txt with the provided content
-# why it goes until line 12? 8 + 4 (amount of lines after header below)
+# overwrites lines 8-11 in test.txt with the provided content
+# why it goes until line 11? 8 + 4 lines of new content below (inclusive)
 @ + test.txt 8 0 true
 {
     "ape": "monkey",
