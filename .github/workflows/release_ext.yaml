@@ -1,12 +1,8 @@
 name: Release VS Code Extension
 
 on:
-  push:
-    paths:
-      - 'vscode_ext/**'
-    branches:
-      - main
-  workflow_dispatch:
+  release:
+    types: [created]
 
 permissions: write-all
 
@@ -29,24 +25,13 @@ jobs:
 
       - name: Package Extension
         run: cd vscode_ext && vsce package
-        
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
 
       - name: Upload VSIX as Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./vscode_ext/*.vsix
           asset_name: gopatch-syntax.vsix
           asset_content_type: application/octet-stream
