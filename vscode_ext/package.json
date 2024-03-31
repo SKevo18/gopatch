@@ -3,6 +3,10 @@
   "displayName": "Gopatch Syntax",
   "description": "Syntax highlighting for gopatch files",
   "version": "0.0.1",
+  "author": "SKevo18",
+  "publisher": "SKevo18",
+  "repository": "https://github.com/SKevo18/gopatch",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.87.0"
   },
