@@ -40,9 +40,6 @@ func ReadPatchFile(patchFilePath string) ([]PatchLine, error) {
 				return nil, err
 			}
 		} else {
-			if line[0] == '\\' {
-				line = line[1:] // trim leading backslash
-			}
 			patchLine.Content = append(patchLine.Content, line)
 		}
 	}
@@ -67,6 +64,28 @@ func ReadPatchFiles(patchFilePaths []string) ([]PatchLine, error) {
 	}
 
 	return patchLines, nil
+}
+
+// Writes a slice of `PatchLine` structs as a patch file.
+func WritePatchFile(patchFilePath string, patchLines []PatchLine) error {
+	file, err := os.Create(patchFilePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	for i, patchLine := range patchLines {
+		toWrite := patchLine.String()
+		if i != len(patchLines)-1 {
+			toWrite += newLineChar
+		}
+
+		if _, err := file.WriteString(toWrite); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Patches a file with a patch file.
@@ -153,7 +172,7 @@ func (fl *FileLines) applyPatch(patchLine PatchLine) error {
 		return fmt.Errorf("line number out of range (from): %d (%s)", patchLine.LineFrom, patchLine.FilePath)
 	}
 	if patchLine.LineTo != 0 && (patchLine.LineTo < patchLine.LineFrom || patchLine.LineTo > len(*fl)) {
-		return fmt.Errorf("nonsense \"to\" line range: %d (%s)", patchLine.LineTo, patchLine.FilePath)
+		return fmt.Errorf("\"to\" line range out of bounds, or before \"from\": %d (%s)", patchLine.LineTo, patchLine.FilePath)
 	}
 	if patchLine.LineTo == 0 {
 		patchLine.LineTo = patchLine.LineFrom

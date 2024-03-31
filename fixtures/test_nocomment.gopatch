@@ -1,0 +1,7 @@
+@ - subdirectory/another_monkey.txt 1 2 true
+
+@ + subdirectory/another_monkey.txt 1 0 false
+appended monke
+wuw
+
+@ - subdirectory/another_monkey.txt 3 11 true

@@ -8,18 +8,18 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 4 {
+	if len(os.Args) < 4 {
 		fmt.Println("gopatch v0.0.1 (https://github.com/SKevo18/gopatch)")
-		fmt.Printf("Usage: %s <original-dir> <output-dir> <patch-file>\n", os.Args[0])
+		fmt.Printf("Usage: %s <original-dir> <output-dir> <patch-files...>\n", os.Args[0])
 		os.Exit(1)
 	}
 	originalDir := os.Args[1]
 	outputDir := os.Args[2]
-	patchFile := os.Args[3]
+	patchFiles := os.Args[3:]
 
-	patchLines, err := gopatch.ReadPatchFile(patchFile)
+	patchLines, err := gopatch.ReadPatchFiles(patchFiles)
 	if err != nil {
-		fmt.Printf("Failed to read patch file %s: %v", patchFile, err)
+		fmt.Printf("Failed to read a patch file: %v", err)
 		os.Exit(1)
 	}
 	if err := gopatch.PatchDir(originalDir, outputDir, patchLines); err != nil {

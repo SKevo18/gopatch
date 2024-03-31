@@ -12,6 +12,7 @@ import (
 
 const (
 	testPatchFilePath = "fixtures/test.gopatch"
+	testPatchFileNoCommentsPath = "fixtures/test_nocomment.gopatch"
 	testInputDir      = "fixtures/original"
 	textWantDir       = "fixtures/want"
 )
@@ -19,7 +20,7 @@ const (
 func TestPatchDir(t *testing.T) {
 	tempOutputDir := t.TempDir()
 
-	patchLines, err := gopatch.ReadPatchFile(testPatchFilePath)
+	patchLines, err := gopatch.ReadPatchFiles([]string{testPatchFilePath, testPatchFileNoCommentsPath})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -28,6 +29,24 @@ func TestPatchDir(t *testing.T) {
 	}
 
 	if err := compareDirs(t, tempOutputDir, textWantDir); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWritePatchFile(t *testing.T) {
+	tempOutputDir := t.TempDir()
+	tempPatchFile := filepath.Join(tempOutputDir, "test.gopatch")
+
+	patchLines, err := gopatch.ReadPatchFile(testPatchFileNoCommentsPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := gopatch.WritePatchFile(tempPatchFile, patchLines); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := compareFiles(t, tempPatchFile, testPatchFileNoCommentsPath); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -57,20 +76,28 @@ func compareDirs(t *testing.T, have string, want string) error {
 		}
 
 		if !wantInfo.IsDir() {
-			haveData, err := os.ReadFile(path)
-			if err != nil {
+			if err := compareFiles(t, path, wantPath); err != nil {
 				return err
-			}
-			wantData, err := os.ReadFile(wantPath)
-			if err != nil {
-				return err
-			}
-
-			if !assert.Equal(t, string(haveData), string(wantData)) {
-				return fmt.Errorf("file %s does not match", relPath)
 			}
 		}
 
 		return nil
 	})
+}
+
+func compareFiles(t *testing.T, havePath string, wantPath string) error {
+	haveData, err := os.ReadFile(havePath)
+	if err != nil {
+		return err
+	}
+	wantData, err := os.ReadFile(wantPath)
+	if err != nil {
+		return err
+	}
+
+	if !assert.Equal(t, string(wantData), string(haveData)) {
+		return fmt.Errorf("files %s do not match", havePath)
+	}
+
+	return nil
 }

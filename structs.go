@@ -45,6 +45,11 @@ func (fl *FileLines) WriteFile(path string) error {
 				continue
 			}
 
+			// trim leading backslash
+			if line != "" && line[0] == '\\' {
+				line = line[1:]
+			}
+
 			// append new line, if it's not the last line, or last line of the last packed line
 			if i != flLen-1 || (unpackedLen > 1 && j != unpackedLen-1) {
 				line += newLineChar
@@ -107,6 +112,21 @@ func (pl *PatchLine) parseHeader(line string) error {
 	}
 
 	return nil
+}
+
+func (pl *PatchLine) String() string {
+	action := "-"
+	content := strings.Join(pl.Content, newLineChar)
+
+	if len(pl.Content) > 0 {
+		action = "+"
+		content += newLineChar
+	}
+
+	header := fmt.Sprintf("@ %s %s %d %d %t", action, pl.FilePath, pl.LineFrom, pl.LineTo, pl.Overwrite)
+	line := header + newLineChar + content
+
+	return line
 }
 
 func getNewlineCharacter() string {
