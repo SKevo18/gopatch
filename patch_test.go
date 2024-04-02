@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	testPatchFilePath = "fixtures/test.gopatch"
+	testPatchFilePath           = "fixtures/test.gopatch"
 	testPatchFileNoCommentsPath = "fixtures/test_nocomment.gopatch"
-	testInputDir      = "fixtures/original"
-	textWantDir       = "fixtures/want"
+	testInputDir                = "fixtures/original"
+	textWantDir                 = "fixtures/want"
 )
 
 func TestPatchDir(t *testing.T) {
