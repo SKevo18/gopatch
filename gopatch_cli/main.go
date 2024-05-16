@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if len(os.Args) < 4 {
-		fmt.Println("gopatch v0.0.1 (https://github.com/SKevo18/gopatch)")
+		fmt.Println("gopatch v1.0 (https://github.com/SKevo18/gopatch)")
 		fmt.Printf("Usage: %s <original-dir> <output-dir> <patch-files...>\n", os.Args[0])
 		os.Exit(1)
 	}
