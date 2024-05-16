@@ -2,7 +2,7 @@ name: Build CLI
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 permissions: write-all
 
@@ -36,7 +36,6 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Run Tests
-        working-directory: gopatch_cli
         run: go test ./...
 
       - name: Build CLI
