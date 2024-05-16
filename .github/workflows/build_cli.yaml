@@ -3,6 +3,7 @@ name: Build CLI
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 permissions: write-all
 
